@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Resources - Community Resource Exchange{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Browse Available Resources</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="query" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="query" name="query" value="{{ query }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" value="{{ location }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for resource in resources %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header">
+                <span class="badge bg-primary">{{ resource.category }}</span>
+                <span class="badge bg-secondary">{{ resource.condition }}</span>
+                <span class="float-end text-muted small">{{ time_since(resource.date_posted) }}</span>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ resource.title }}</h5>
+                <p class="card-text">{{ resource.description[:100] }}{% if resource.description|length > 100 %}...{% endif %}</p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="bi bi-person"></i> {{ resource.owner.username }} |
+                        <i class="bi bi-geo-alt"></i> {{ resource.owner.location }}
+                    </small>
+                </p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-outline-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not resources %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-search fs-1 text-muted"></i>
+        <h3 class="mt-3">No resources found</h3>
+        <p>Try adjusting your search filters or check back later.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

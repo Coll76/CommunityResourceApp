@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Requests - Community Resource Exchange{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Manage Incoming Requests</h1>
+
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending">Pending</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted">Accepted</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed">Completed</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="rejected-tab" data-bs-toggle="tab" href="#rejected">Rejected</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="pending">
+        <div class="list-group">
+            {% set has_pending = false %}
+            {% for request in requests %}
+                {% if request.status == 'pending' %}
+                    {% set has_pending = true %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Request for: {{ request.resource.title }}</h5>
+                            <small>{{ time_since(request.date_requested) }}</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="mb-1">Message: {{ request.message if request.message else "No message provided" }}</p>
+                                <small>
+                                    <i class="bi bi-person"></i> {{ request.requester.username }} |
+                                    <i class="bi bi-geo-alt"></i> {{ request.requester.location }}
+                                </small>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <form method="POST" action="{{ url_for('handle_request', request_id=request.id, action='accept') }}" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('handle_request', request_id=request.id, action='reject') }}" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if not has_pending %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <h3 class="mt-3">No pending requests</h3>
+                    <p>When someone requests one of your resources, it will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="accepted">
+        <div class="list-group">
+            {% set has_accepted = false %}
+            {% for request in requests %}
+                {% if request.status == 'accepted' %}
+                    {% set has_accepted = true %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ request.resource.title }}</h5>
+                            <small>Accepted {{ time_since(request.date_updated) }}</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p class="mb-1">
+                                    Requested by: {{ request.requester.username }} |
+                                    <i class="bi bi-telephone"></i> Contact via email: {{ request.requester.email }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <form method="POST" action="{{ url_for('handle_request', request_id=request.id, action='complete') }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">Mark as Completed</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if not has_accepted %}
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle fs-1 text-muted"></i>
+                    <h3 class="mt-3">No accepted requests</h3>
+                    <p>Requests you've accepted will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="completed">
+        <div class="list-group">
+            {% set has_completed = false %}
+            {% for request in requests %}
+                {% if request.status == 'completed' %}
+                    {% set has_completed = true %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ request.resource.title }}</h5>
+                            <small>Completed {{ time_since(request.date_updated) }}</small>
+                        </div>
+                        <p class="mb-1">
+                            Received by: {{ request.requester.username }}
+                        </p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if not has_completed %}
+                <div class="text-center py-5">
+                    <i class="bi bi-trophy fs-1 text-muted"></i>
+                    <h3 class="mt-3">No completed exchanges</h3>
+                    <p>Completed exchanges will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="rejected">
+        <div class="list-group">
+            {% set has_rejected = false %}
+            {% for request in requests %}
+                {% if request.status == 'rejected' %}
+                    {% set has_rejected = true %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ request.resource.title }}</h5>
+                            <small>Rejected {{ time_since(request.date_updated) }}</small>
+                        </div>
+                        <p class="mb-1">
+                            Requested by: {{ request.requester.username }}
+                        </p>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% if not has_rejected %}
+                <div class="text-center py-5">
+                    <i class="bi bi-x-circle fs-1 text-muted"></i>
+                    <h3 class="mt-3">No rejected requests</h3>
+                    <p>Requests you've rejected will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

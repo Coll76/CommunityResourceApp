@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ resource.title }} - Community Resource Exchange{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('resources') }}">Resources</a></li>
+        <li class="breadcrumb-item active">{{ resource.title }}</li>
+    </ol>
+</nav>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">{{ resource.title }}</h2>
+            <span class="badge bg-{% if resource.is_available %}success{% else %}danger{% endif %} px-3 py-2">
+                {% if resource.is_available %}Available{% else %}No Longer Available{% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>Description</h5>
+                <p>{{ resource.description }}</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Details</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Category:</span>
+                                <span class="badge bg-primary">{{ resource.category }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Condition:</span>
+                                <span class="badge bg-secondary">{{ resource.condition }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Quantity:</span>
+                                <span>{{ resource.quantity }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Posted:</span>
+                                <span>{{ time_since(resource.date_posted) }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Location</h5>
+                        <p>
+                            <i class="bi bi-geo-alt"></i> 
+                            {% if resource.pickup_location %}
+                                {{ resource.pickup_location }}
+                            {% else %}
+                                {{ resource.owner.location }}
+                            {% endif %}
+                        </p>
+                        
+                        <h5 class="mt-3">Shared By</h5>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-circle fs-1 me-2"></i>
+                            <div>
+                                <h6 class="mb-0">{{ resource.owner.username }}</h6>
+                                <div>
+                                    {% for i in range(5) %}
+                                        {% if i < (resource.owner.reputation / 20) %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% else %}
+                                            <i class="bi bi-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="ms-1">{{ resource.owner.reputation }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        {% if resource.is_available %}
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.id != resource.user_id %}
+                                    {% if user_request %}
+                                        <div class="alert alert-info">
+                                            <h5>Request Status: {{ user_request.status|capitalize }}</h5>
+                                            <p>You requested this item on {{ user_request.date_requested.strftime('%b %d, %Y') }}</p>
+                                        </div>
+                                    {% else %}
+                                        <h5 class="card-title">Request This Item</h5>
+                                        <form method="POST" action="{{ url_for('request_resource', resource_id=resource.id) }}">
+                                            <div class="mb-3">
+                                                <label for="message" class="form-label">Message to owner</label>
+                                                <textarea class="form-control" id="message" name="message" rows="3" placeholder="Introduce yourself and explain why you need this resource..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+                                        </form>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="alert alert-success">
+                                        <h5>You own this resource</h5>
+                                        <p>You can edit or manage requests for this item.</p>
+                                        <a href="{{ url_for('edit_resource', resource_id=resource.id) }}" class="btn btn-outline-primary">Edit Resource</a>
+                                        <a href="{{ url_for('manage_requests') }}" class="btn btn-outline-secondary">View Requests</a>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="text-center py-3">
+                                    <h5>Interested in this item?</h5>
+                                    <p>Login or create an account to request it.</p>
+                                    <a href="{{ url_for('login') }}?next={{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-primary">Log In</a>
+                                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">Register</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-secondary">
+                                <h5>No Longer Available</h5>
+                                <p>This resource has been claimed or is no longer available.</p>
+                                <a href="{{ url_for('resources') }}" class="btn btn-outline-primary">Browse Other Resources</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

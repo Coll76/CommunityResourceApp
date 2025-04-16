@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if resource %}Edit{% else %}Share New{% endif %} Resource - Community Exchange
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">{% if resource %}Edit{% else %}Share New{% endif %} Resource</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ resource.title if resource else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required>{{ resource.description if resource else '' }}</textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select category</option>
+                                <option value="Food" {% if resource and resource.category == 'Food' %}selected{% endif %}>Food & Groceries</option>
+                                <option value="Clothing" {% if resource and resource.category == 'Clothing' %}selected{% endif %}>Clothing</option>
+                                <option value="Books" {% if resource and resource.category == 'Books' %}selected{% endif %}>Books & Education</option>
+                                <option value="Household" {% if resource and resource.category == 'Household' %}selected{% endif %}>Household Items</option>
+                                <option value="Electronics" {% if resource and resource.category == 'Electronics' %}selected{% endif %}>Electronics</option>
+                                <option value="Toys" {% if resource and resource.category == 'Toys' %}selected{% endif %}>Toys & Games</option>
+                                <option value="Sports" {% if resource and resource.category == 'Sports' %}selected{% endif %}>Sports Equipment</option>
+                                <option value="Tools" {% if resource and resource.category == 'Tools' %}selected{% endif %}>Tools & Supplies</option>
+                                <option value="Services" {% if resource and resource.category == 'Services' %}selected{% endif %}>Services</option>
+                                <option value="Other" {% if resource and resource.category == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="condition" class="form-label">Condition</label>
+                            <select class="form-select" id="condition" name="condition" required>
+                                <option value="">Select condition</option>
+                                <option value="New" {% if resource and resource.condition == 'New' %}selected{% endif %}>New</option>
+                                <option value="Like New" {% if resource and resource.condition == 'Like New' %}selected{% endif %}>Like New</option>
+                                <option value="Good" {% if resource and resource.condition == 'Good' %}selected{% endif %}>Good</option>
+                                <option value="Fair" {% if resource and resource.condition == 'Fair' %}selected{% endif %}>Fair</option>
+                                <option value="N/A" {% if resource and resource.condition == 'N/A' %}selected{% endif %}>Not Applicable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" min="1" 
+                                   value="{{ resource.quantity if resource else 1 }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pickup_location" class="form-label">Pickup Location</label>
+                            <input type="text" class="form-control" id="pickup_location" name="pickup_location" 
+                                   value="{{ resource.pickup_location if resource else '' }}" 
+                                   placeholder="Leave blank to use your profile location">
+                        </div>
+                    </div>
+                    
+                    {% if resource %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_available" name="is_available" 
+                               {% if resource.is_available %}checked{% endif %}>
+                        <label class="form-check-label" for="is_available">Resource is still available</label>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('resource_detail', resource_id=resource.id) if resource else url_for('resources') }}" 
+                           class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if resource %}Save Changes{% else %}Share Resource{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

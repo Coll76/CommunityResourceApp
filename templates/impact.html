@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Community Impact - Community Resource Exchange{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Community Impact</h1>
+    <p class="lead mb-5">See how our community is making a difference through sharing and reusing resources.</p>
+
+    <!-- Impact Statistics -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-archive fs-1 text-primary mb-3"></i>
+                    <h2 class="card-title">{{ total_resources }}</h2>
+                    <p class="card-text">Resources Shared</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-arrow-repeat fs-1 text-primary mb-3"></i>
+                    <h2 class="card-title">{{ completed_exchanges }}</h2>
+                    <p class="card-text">Completed Exchanges</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                    <h2 class="card-title">{{ active_users }}</h2>
+                    <p class="card-text">Community Members</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <!-- Category Distribution -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">Resources by Category</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Exchanges -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Exchanges</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="exchangeChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Environmental Impact -->
+    <div class="card mb-5">
+        <div class="card-header">
+            <h3 class="card-title">Environmental Impact</h3>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="bi bi-trash fs-1 text-success mb-2"></i>
+                    <h4>Waste Reduction</h4>
+                    <p>Approximately {{ total_resources * 2 }} kg of potential waste diverted from landfills.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-truck fs-1 text-success mb-2"></i>
+                    <h4>Carbon Footprint</h4>
+                    <p>Reduced carbon emissions by reusing instead of buying new items.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-tree fs-1 text-success mb-2"></i>
+                    <h4>Resource Conservation</h4>
+                    <p>Conserved natural resources through community sharing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Stories -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Community Testimonials</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <i class="bi bi-quote fs-1 text-primary me-3"></i>
+                        <div>
+                            <p class="lead">"This platform has transformed how I think about my unused items. Instead of throwing them away, I now share them with neighbors who need them."</p>
+                            <p class="fw-bold mb-0">— Community Member</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex">
+                        <i class="bi bi-quote fs-1 text-primary me-3"></i>
+                        <div>
+                            <p class="lead">"I've been able to furnish my apartment after moving to the city thanks to the generosity of this community."</p>
+                            <p class="fw-bold mb-0">— New Resident</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category distribution chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'pie',
+            data: {
+                labels: [{% for category, count in categories %}'{{ category }}',{% endfor %}],
+                datasets: [{
+                    data: [{% for category, count in categories %}{{ count }},{% endfor %}],
+                    backgroundColor: [
+                        '#4361ee', '#3a0ca3', '#7209b7', '#f72585', '#4cc9f0',
+                        '#4895ef', '#560bad', '#f15bb5', '#fee440', '#00bbf9'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+
+        // Monthly exchanges chart
+        const exchangeCtx = document.getElementById('exchangeChart').getContext('2d');
+        const exchangeChart = new Chart(exchangeCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for month, count in monthly_exchanges %}'{{ month }}',{% endfor %}],
+                datasets: [{
+                    label: 'Completed Exchanges',
+                    data: [{% for month, count in monthly_exchanges %}{{ count }},{% endfor %}],
+                    backgroundColor: '#4361ee',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
