@@ -2,74 +2,168 @@
 
 {% block title %}Browse Resources - Community Resource Exchange{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/resources.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<h1 class="mb-4">Browse Available Resources</h1>
-
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <form method="GET" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="query" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="query" name="query" value="{{ query }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="category" class="form-label">Category</label>
-                        <select class="form-select" id="category" name="category">
-                            <option value="">All Categories</option>
-                            {% for category in categories %}
-                            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
-                                {{ category }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="location" class="form-label">Location</label>
-                        <input type="text" class="form-control" id="location" name="location" value="{{ location }}">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<!-- Page Header -->
+<div class="container-fluid mb-5">
+    <div class="section-header mb-4">
+        <h2 class="fw-bold">Browse Available Resources</h2>
+        <p class="text-muted">Find resources shared by community members</p>
     </div>
-</div>
-
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for resource in resources %}
-    <div class="col">
-        <div class="card h-100">
-            <div class="card-header">
-                <span class="badge bg-primary">{{ resource.category }}</span>
-                <span class="badge bg-secondary">{{ resource.condition }}</span>
-                <span class="float-end text-muted small">{{ time_since(resource.date_posted) }}</span>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">{{ resource.title }}</h5>
-                <p class="card-text">{{ resource.description[:100] }}{% if resource.description|length > 100 %}...{% endif %}</p>
-                <p class="card-text">
-                    <small class="text-muted">
-                        <i class="bi bi-person"></i> {{ resource.owner.username }} |
-                        <i class="bi bi-geo-alt"></i> {{ resource.owner.location }}
-                    </small>
-                </p>
-            </div>
-            <div class="card-footer">
-                <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-outline-primary">View Details</a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
     
-    {% if not resources %}
-    <div class="col-12 text-center py-5">
-        <i class="bi bi-search fs-1 text-muted"></i>
-        <h3 class="mt-3">No resources found</h3>
-        <p>Try adjusting your search filters or check back later.</p>
+    <!-- Enhanced Filter Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-body p-4">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="query" class="form-label fw-medium">Search</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="query" name="query" value="{{ query }}" placeholder="What are you looking for?">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label fw-medium">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>
+                                    {{ category }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="location" class="form-label fw-medium">Location</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" id="location" name="location" value="{{ location }}" placeholder="Neighborhood or area">
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 shadow">
+                                <i class="bi bi-filter me-2"></i>Filter Results
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resource Cards -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for resource in resources %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow resource-card">
+                <div class="resource-img-container">
+                    <img src="/api/placeholder/400/250" alt="{{ resource.title }}" class="card-img-top">
+                </div>
+                <div class="resource-card-header p-3">
+                    <span class="badge rounded-pill">{{ resource.category }}</span>
+                    <span class="badge bg-secondary rounded-pill">{{ resource.condition }}</span>
+                    <span class="float-end text-muted small">{{ time_since(resource.date_posted) }}</span>
+                </div>
+                <div class="card-body p-3">
+                    <h5 class="card-title fw-bold">{{ resource.title }}</h5>
+                    <p class="card-text text-secondary">{{ resource.description[:100] }}{% if resource.description|length > 100 %}...{% endif %}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center p-3">
+                    <div class="location">
+                        <i class="bi bi-person me-1"></i>
+                        <small class="text-muted">{{ resource.owner.username }} | </small>
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <small class="text-muted">{{ resource.owner.location }}</small>
+                    </div>
+                    <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not resources %}
+        <div class="col-12">
+            <div class="card border-0 shadow p-5 text-center">
+                <div class="empty-state-container py-4">
+                    <i class="bi bi-search fs-1 text-muted mb-3"></i>
+                    <h3 class="fw-bold mt-3">No resources found</h3>
+                    <p class="text-muted mb-4">Try adjusting your search filters or check back later.</p>
+                    <a href="{{ url_for('resources') }}" class="btn btn-outline-primary px-4">
+                        <i class="bi bi-arrow-repeat me-2"></i>Clear Filters
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Pagination (if needed) -->
+    {% if pagination %}
+    <div class="row mt-5">
+        <div class="col d-flex justify-content-center">
+            <nav aria-label="Resource pagination">
+                <ul class="pagination">
+                    <li class="page-item {% if pagination.page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('resources', page=pagination.page-1, query=query, category=selected_category, location=location) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% for p in range(1, pagination.pages + 1) %}
+                    <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('resources', page=p, query=query, category=selected_category, location=location) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {% if pagination.page == pagination.pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('resources', page=pagination.page+1, query=query, category=selected_category, location=location) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
     {% endif %}
 </div>
+
+<!-- Call to Action Section -->
+<div class="container-fluid mt-5 mb-5">
+    <div class="card border-0 shadow cta-card">
+        <div class="row g-0 align-items-center">
+            <div class="col-lg-8">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-3">Have something to share?</h3>
+                    <p class="lead mb-4">Your unused items could be exactly what someone else needs. Share resources and reduce waste together.</p>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('new_resource') }}" class="btn btn-primary btn-lg px-4 py-2">
+                        <i class="bi bi-plus-circle me-2"></i>Share a Resource
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 py-2">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login to Share
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-4 d-none d-lg-block">
+                <img src="{{ url_for('static', filename='img/resource.jpg') }}" alt="Share Resources" class="img-fluid rounded-end h-100" style="object-fit: cover;">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/resources.js') }}"></script>
 {% endblock %}

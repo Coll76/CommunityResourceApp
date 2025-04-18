@@ -2,147 +2,396 @@
 
 {% block title %}Community Resource Exchange - Connect & Share{% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="jumbotron bg-light p-5 rounded mb-4">
-    <h1 class="display-4">Share Resources, Build Community</h1>
-    <p class="lead">Connect directly with neighbors to share resources and reduce waste in your community.</p>
-    <hr class="my-4">
-    <p>Got extra items you don't need? Someone in your community could use them.</p>
-    <div class="d-flex gap-2">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('resources') }}">Browse Resources</a>
-        {% if current_user.is_authenticated %}
-        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('new_resource') }}">Share Something</a>
-        {% else %}
-        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('register') }}">Join Now</a>
-        {% endif %}
-    </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <h1 class="display-4 text-primary">{{ total_resources }}</h1>
-                <h5 class="card-title">Resources Shared</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <h1 class="display-4 text-success">{{ completed_exchanges }}</h1>
-                <h5 class="card-title">Successful Exchanges</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <h1 class="display-4 text-info">{{ active_users }}</h1>
-                <h5 class="card-title">Community Members</h5>
-            </div>
-        </div>
-    </div>
-</div>
-
-<h2 class="mb-4">Recently Shared Resources</h2>
-
-<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
-    {% for resource in recent_resources %}
-    <div class="col">
-        <div class="card h-100">
-            <div class="card-header">
-                <span class="badge bg-primary">{{ resource.category }}</span>
-                <span class="float-end text-muted small">{{ time_since(resource.date_posted) }}</span>
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">{{ resource.title }}</h5>
-                <p class="card-text">{{ resource.description[:100] }}{% if resource.description|length > 100 %}...{% endif %}</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-                <small class="text-muted">{{ resource.owner.location }}</small>
-                <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="row mt-5">
-    <div class="col-md-6">
-        <h3>How It Works</h3>
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex mb-3">
-                    <div class="bg-primary text-white rounded-circle p-3 me-3">
-                        <h3 class="m-0">1</h3>
+<!-- Modern Hero Section with Transparent Overlay -->
+<div class="hero-container">
+    <div class="jumbotron position-relative overflow-hidden p-0 mb-5">
+        <div class="hero-transparent-overlay p-5">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h1 class="display-4 fw-bold">Share Resources, Build Community</h1>
+                        <p class="lead my-4">Connect directly with neighbors to share resources and reduce waste through our digital exchange platform.</p>
+                        <div class="d-flex flex-wrap gap-3 mt-4">
+                            <a class="btn btn-primary btn-lg shadow px-4 py-2" href="{{ url_for('resources') }}">
+                                <i class="bi bi-search me-2"></i>Browse Resources
+                            </a>
+                            {% if current_user.is_authenticated %}
+                            <a class="btn btn-outline-primary btn-lg px-4 py-2" href="{{ url_for('new_resource') }}">
+                                <i class="bi bi-plus-circle me-2"></i>Share Something
+                            </a>
+                            {% else %}
+                            <a class="btn btn-secondary btn-lg px-4 py-2" href="{{ url_for('register') }}">
+                                <i class="bi bi-person-plus me-2"></i>Join Now
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div>
-                        <h5>Share Resources</h5>
-                        <p>Post items you no longer need but are still in good condition.</p>
-                    </div>
-                </div>
-                <div class="d-flex mb-3">
-                    <div class="bg-primary text-white rounded-circle p-3 me-3">
-                        <h3 class="m-0">2</h3>
-                    </div>
-                    <div>
-                        <h5>Connect Directly</h5>
-                        <p>Communicate with neighbors who need what you're offering.</p>
-                    </div>
-                </div>
-                <div class="d-flex">
-                    <div class="bg-primary text-white rounded-circle p-3 me-3">
-                        <h3 class="m-0">3</h3>
-                    </div>
-                    <div>
-                        <h5>Build Community</h5>
-                        <p>Complete exchanges and provide feedback to build reputation.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <h3>Featured Categories</h3>
-        <div class="row g-2">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-basket2 fs-1 text-primary"></i>
-                        <h5>Food & Groceries</h5>
-                        <a href="{{ url_for('resources', category='Food') }}" class="btn btn-sm btn-outline-primary">Browse</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-book fs-1 text-primary"></i>
-                        <h5>Books & Education</h5>
-                        <a href="{{ url_for('resources', category='Books') }}" class="btn btn-sm btn-outline-primary">Browse</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-tags fs-1 text-primary"></i>
-                        <h5>Clothing</h5>
-                        <a href="{{ url_for('resources', category='Clothing') }}" class="btn btn-sm btn-outline-primary">Browse</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-house fs-1 text-primary"></i>
-                        <h5>Household Items</h5>
-                        <a href="{{ url_for('resources', category='Household') }}" class="btn btn-sm btn-outline-primary">Browse</a>
+                    <div class="col-lg-5 d-none d-lg-block">
+                        <img src="/api/placeholder/600/500" alt="Community Sharing" class="img-fluid hero-image rounded-4 shadow-lg">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Trust Indicators Section -->
+<div class="trust-banner bg-light py-4 mb-5">
+    <div class="container-fluid">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="bi bi-shield-check fs-3 text-primary"></i>
+                <p class="mb-0 fw-medium">Secure Exchanges</p>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="bi bi-geo-alt fs-3 text-primary"></i>
+                <p class="mb-0 fw-medium">Local Community Focus</p>
+            </div>
+            <div class="col-md-3 mb-3 mb-md-0">
+                <i class="bi bi-people fs-3 text-primary"></i>
+                <p class="mb-0 fw-medium">Verified Members</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-hand-thumbs-up fs-3 text-primary"></i>
+                <p class="mb-0 fw-medium">Satisfaction Guaranteed</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section with Enhanced Cards -->
+<div class="container-fluid mb-5">
+    <div class="section-header text-center mb-4">
+        <h2 class="fw-bold">Our Impact</h2>
+        <p class="text-muted">Growing together through resource sharing</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow h-100 stats-card">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold text-primary counter-container">
+                        <span class="counter" data-target="{{ total_resources }}">0</span>
+                    </h1>
+                    <h5 class="card-title text-uppercase fw-medium">Resources Shared</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow h-100 stats-card">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="bi bi-arrow-repeat fs-1 text-success"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold text-success counter-container">
+                        <span class="counter" data-target="{{ completed_exchanges }}">0</span>
+                    </h1>
+                    <h5 class="card-title text-uppercase fw-medium">Successful Exchanges</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow h-100 stats-card">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="bi bi-people fs-1 text-info"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold text-info counter-container">
+                        <span class="counter" data-target="{{ active_users }}">0</span>
+                    </h1>
+                    <h5 class="card-title text-uppercase fw-medium">Community Members</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section with Image -->
+<div class="container-fluid mb-5 bg-light py-5 rounded-4">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="section-header mb-4">
+                <h3 class="fw-bold">How It Works</h3>
+            </div>
+            <div class="step d-flex align-items-center mb-4">
+                <div class="step-icon me-3">
+                    <h4 class="m-0">1</h4>
+                </div>
+                <div class="step-content">
+                    <h5 class="fw-bold">Share Resources</h5>
+                    <p class="text-secondary mb-0">Post items you no longer need but are still in good condition.</p>
+                </div>
+            </div>
+            <div class="step d-flex align-items-center mb-4">
+                <div class="step-icon me-3">
+                    <h4 class="m-0">2</h4>
+                </div>
+                <div class="step-content">
+                    <h5 class="fw-bold">Connect Directly</h5>
+                    <p class="text-secondary mb-0">Communicate with neighbors who need what you're offering.</p>
+                </div>
+            </div>
+            <div class="step d-flex align-items-center">
+                <div class="step-icon me-3">
+                    <h4 class="m-0">3</h4>
+                </div>
+                <div class="step-content">
+                    <h5 class="fw-bold">Build Community</h5>
+                    <p class="text-secondary mb-0">Complete exchanges and provide feedback to build reputation.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="{{ url_for('static', filename='img/work.jpg') }}" alt="How it works" class="img-fluid rounded-4 shadow" style="object-fit: cover;">
+        </div>
+    </div>
+</div>
+
+<!-- Recent Resources Section with Enhanced Card Design -->
+<div class="container-fluid mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Recently Shared Resources</h2>
+        <a href="{{ url_for('resources') }}" class="text-decoration-none view-all-link">View all <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for resource in recent_resources %}
+        <div class="col">
+            <div class="card h-100 border-0 shadow resource-card">
+                <div class="resource-img-container">
+                    <img src="/api/placeholder/400/250" alt="{{ resource.title }}" class="card-img-top">
+                </div>
+                <div class="resource-card-header p-3">
+                    <span class="badge rounded-pill">{{ resource.category }}</span>
+                    <span class="float-end text-muted small">{{ time_since(resource.date_posted) }}</span>
+                </div>
+                <div class="card-body p-3">
+                    <h5 class="card-title fw-bold">{{ resource.title }}</h5>
+                    <p class="card-text text-secondary">{{ resource.description[:100] }}{% if resource.description|length > 100 %}...{% endif %}</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center p-3">
+                    <div class="location">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        <small class="text-muted">{{ resource.owner.location }}</small>
+                    </div>
+                    <a href="{{ url_for('resource_detail', resource_id=resource.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Featured Categories Section -->
+<div class="container-fluid mb-5">
+    <div class="section-header text-center mb-4">
+        <h2 class="fw-bold">Featured Categories</h2>
+        <p class="text-muted">Find resources by category</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('resources', category='Food') }}" class="text-decoration-none">
+                <div class="card border-0 shadow category-card h-100">
+                    <div class="category-img-container">
+                        <img src="{{ url_for('static', filename='img/food.jpg') }}" alt="Food & Groceries" class="card-img-top">
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <div class="category-icon mb-3">
+                            <i class="bi bi-basket2 fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">Food & Groceries</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('resources', category='Books') }}" class="text-decoration-none">
+                <div class="card border-0 shadow category-card h-100">
+                    <div class="category-img-container">
+                        <img src="{{ url_for('static', filename='img/books.jpg') }}" alt="Books & Education" class="card-img-top">
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <div class="category-icon mb-3">
+                            <i class="bi bi-book fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">Books & Education</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('resources', category='Clothing') }}" class="text-decoration-none">
+                <div class="card border-0 shadow category-card h-100">
+                    <div class="category-img-container">
+                        <img src="{{ url_for('static', filename='img/clothing.jpg') }}" alt="Clothing" class="card-img-top">
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <div class="category-icon mb-3">
+                            <i class="bi bi-tags fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">Clothing</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('resources', category='Household') }}" class="text-decoration-none">
+                <div class="card border-0 shadow category-card h-100">
+                    <div class="category-img-container">
+                        <img src="{{ url_for('static', filename='img/household.jpg') }}" alt="Household items" class="card-img-top">
+                    </div>
+                    <div class="card-body text-center p-4">
+                        <div class="category-icon mb-3">
+                            <i class="bi bi-house fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">Household Items</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Testimonials Section with Images -->
+<div class="container-fluid mt-5 mb-5 bg-light py-5 rounded-4">
+    <div class="section-header text-center mb-5">
+        <h2 class="fw-bold">Community Testimonials</h2>
+        <p class="text-muted">See what our members are saying about their experiences</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="testimonials-carousel">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow testimonial-card">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    <img src="{{ url_for('static', filename='img/profile1.jpg') }}" alt="Jane Doe" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body p-3">
+                                        <div class="testimonial-quote"><i class="bi bi-quote fs-3 text-primary opacity-25"></i></div>
+                                        <p class="mb-3">"I've been able to furnish my entire apartment through this platform! So grateful for this community."</p>
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">John Doe</h6>
+                                                <small class="text-muted">Member since 2023</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow testimonial-card">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    <img src="{{ url_for('static', filename='img/profile2.jpg') }}" alt="Jane Doe" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body p-3">
+                                        <div class="testimonial-quote"><i class="bi bi-quote fs-3 text-primary opacity-25"></i></div>
+                                        <p class="mb-3">"As a local business owner, I love being able to redirect surplus inventory to people who need it."</p>
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Jane W</h6>
+                                                <small class="text-muted">Member since 2022</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Banner -->
+<div class="container-fluid mb-5">
+    <div class="row g-0">
+        <div class="col-12">
+            <div class="stats-banner p-5 text-center text-white rounded-4">
+                <div class="row">
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h2 class="display-4 fw-bold mb-2">10+</h2>
+                        <p class="lead mb-0">Neighborhoods Served</p>
+                    </div>
+                    <div class="col-md-4 mb-4 mb-md-0">
+                        <h2 class="display-4 fw-bold mb-2">95%</h2>
+                        <p class="lead mb-0">Satisfaction Rate</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h2 class="display-4 fw-bold mb-2">5K+</h2>
+                        <p class="lead mb-0">Items Exchanged Monthly</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action Section -->
+<div class="container-fluid mt-5 mb-5">
+    <div class="card border-0 shadow cta-card">
+        <div class="row g-0 align-items-center">
+            <div class="col-lg-4 d-none d-lg-block">
+                <img src="{{ url_for('static', filename='img/join-community.jpg') }}" alt="Join our community" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+            </div>
+            <div class="col-lg-8">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-3">Ready to join our community?</h3>
+                    <p class="lead mb-4">Start sharing resources and making connections in your neighborhood today.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-2">Get Started Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Partners Section -->
+<div class="container-fluid mb-5">
+    <div class="section-header text-center mb-4">
+        <h2 class="fw-bold">Our Partners</h2>
+        <p class="text-muted">Organizations that support our mission</p>
+    </div>
+    
+    <div class="row row-cols-2 row-cols-md-5 g-4 align-items-center justify-content-center">
+        <div class="col text-center">
+            <img src="{{ url_for('static', filename='img/partner1.jpg') }}" alt="Partner 1" class="img-fluid grayscale-img">
+        </div>
+        <div class="col text-center">
+            <img src="{{ url_for('static', filename='img/partner2-logo.png') }}" alt="Partner 1" class="img-fluid grayscale-img">
+        </div>
+        <div class="col text-center">
+            <img src="{{ url_for('static', filename='img/partner3-logo.png') }}" alt="Partner 1" class="img-fluid grayscale-img">
+        </div>
+        <div class="col text-center">
+            <img src="{{ url_for('static', filename='img/partner4-logo.png') }}" alt="Partner 1" class="img-fluid grayscale-img">
+        </div>
+        <div class="col text-center">
+            <img src="{{ url_for('static', filename='img/partner5-logo.png') }}" alt="Partner 1" class="img-fluid grayscale-img">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 {% endblock %}

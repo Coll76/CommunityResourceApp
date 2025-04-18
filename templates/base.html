@@ -1,25 +1,34 @@
-<!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Community Resource Exchange{% endblock %}</title>
+    {% block title %}<title>Community Resource Exchange</title>{% endblock %}
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    {% block extra_head %}{% endblock %}
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Global CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    
+    {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="bi bi-people-fill me-2"></i>Community Exchange
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="bi bi-arrow-repeat"></i> Resource Exchange
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}">Home</a>
                     </li>
@@ -30,95 +39,84 @@
                         <a class="nav-link" href="{{ url_for('impact') }}">Community Impact</a>
                     </li>
                 </ul>
-                <ul class="navbar-nav">
+                <div class="d-flex">
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('new_resource') }}">
-                            <i class="bi bi-plus-circle"></i> Share Resource
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('profile') }}">
-                                    <i class="bi bi-person"></i> My Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('manage_requests') }}">
-                                    <i class="bi bi-inbox"></i> Manage Requests
-                                </a>
-                            </li>
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i> {{ current_user.username }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('manage_requests') }}">Manage Requests</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('new_resource') }}">Share a Resource</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="{{ url_for('logout') }}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Log Out</a></li>
                         </ul>
-                    </li>
+                    </div>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-                    </li>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light me-2">Log In</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-light">Sign Up</a>
                     {% endif %}
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Flash Messages Container -->
+    <div class="container-fluid mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
-        {% block content %}{% endblock %}
     </div>
+    
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
 
-    <footer class="bg-light mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Community Resource Exchange</h5>
-                    <p>Connecting people with resources to those who need them.</p>
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-5">
+        <div class="container-fluid">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Community Resource Exchange</h5>
+                    <p class="text-secondary mb-0">Connecting neighbors to share resources, reduce waste, and build stronger communities.</p>
                 </div>
-                <div class="col-md-3">
-                    <h5>Links</h5>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('index') }}">Home</a></li>
-                        <li><a href="{{ url_for('resources') }}">Resources</a></li>
-                        <li><a href="{{ url_for('impact') }}">Impact</a></li>
+                        <li class="mb-2"><a href="{{ url_for('resources') }}" class="text-decoration-none text-secondary">Browse Resources</a></li>
+                        <li class="mb-2"><a href="{{ url_for('impact') }}" class="text-decoration-none text-secondary">Community Impact</a></li>
+                        {% if current_user.is_authenticated %}
+                        <li class="mb-2"><a href="{{ url_for('new_resource') }}" class="text-decoration-none text-secondary">Share a Resource</a></li>
+                        <li class="mb-2"><a href="{{ url_for('profile') }}" class="text-decoration-none text-secondary">My Profile</a></li>
+                        {% else %}
+                        <li class="mb-2"><a href="{{ url_for('register') }}" class="text-decoration-none text-secondary">Join the Community</a></li>
+                        <li class="mb-2"><a href="{{ url_for('login') }}" class="text-decoration-none text-secondary">Log In</a></li>
+                        {% endif %}
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h5>Connect</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
+                <div class="col-md-4">
+                    <h5 class="fw-bold mb-3">Stay Connected</h5>
+                    <div class="d-flex gap-3 mb-3">
+                        <a href="#" class="text-secondary fs-4"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-secondary fs-4"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-secondary fs-4"><i class="bi bi-instagram"></i></a>
+                    </div>
+                    <p class="text-secondary small mb-0">© 2025 Community Resource Exchange. All rights reserved.</p>
                 </div>
-            </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2025 Community Resource Exchange</p>
             </div>
         </div>
     </footer>
 
+    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>
